@@ -55,7 +55,7 @@ function get_color() {
   return "#" + c.slice(c.length - 6);
 }
 
-var added = {};
+var added = [];
 
 function add_graph() {
   var fname_key = $('#fname_key_select option:selected').val();
@@ -63,11 +63,13 @@ function add_graph() {
     alert("Please select a value to graph from the drop-down.");
     return;
   }
-  if (added[fname_key]) {
-    alert("The value '" + fname_key + "' is already graphed.");
-    return;
+  for (var i in added) {
+    if (added[i] == fname_key) {
+      alert("The value '" + fname_key + "' is already graphed.");
+      return;
+    }
   }
-  added[fname_key] = 1;
+  added[added.length] = fname_key;
   add_graph_fname_key(fname_key);
 
   $('#labels').html($('#labels').html() + '<li>' + fname_key + '</li>');
