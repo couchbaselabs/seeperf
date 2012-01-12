@@ -22,6 +22,7 @@ body {
 }
 #stage h1 {
   color: lightblue;
+  font-weight: normal;
 }
 #stage canvas {
   border: 5px solid blue;
@@ -32,8 +33,20 @@ body {
 </style>
 
 <script>
+var added = {};
+
 function add_graph() {
-  alert($('#key_select:selected').val());
+  var key = $('#key_select option:selected').val();
+  if (!key || key == "") {
+    alert("Please select a value to graph from the drop-down.");
+    return;
+  }
+  if (added[key]) {
+    alert("The value '" + key + "' is already graphed.");
+    return;
+  }
+  added[key] = 1;
+
   var cvs = document.getElementById("c");
   cvs.style.backgroundColor = "white";
   var ctx = cvs.getContext("2d");
@@ -67,7 +80,7 @@ function fill_select(path_stat) {
   for (var i in keys) {
     keys[i] = '<option value="' + keys[i] + '">' + keys[i] + "</option>";
   }
-  $('#key_select').html("<option>--select to graph--</option>" + keys.join(''));
+  $('#key_select').html('<option value="">--select to graph--</option>' + keys.join(''));
 }
 
 fill_select(path_stat);
