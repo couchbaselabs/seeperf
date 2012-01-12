@@ -9,8 +9,7 @@
     <select id="fname_key_select"></select>
     <button id="add_graph" type="button" onclick="add_graph()">add graph</button>
   </div>
-  <ul id="labels">
-  </ul>
+  <table id="labels"></table>
 </div>
 
 <pre id="log"></pre>
@@ -31,13 +30,17 @@ body {
   border: 5px solid blue;
 }
 #labels {
-  color: #aaa;
+  color: #888;
+  margin-left: 45px;
+}
+#labels td {
+  font-size: 12px;
 }
 #adder {
-  margin: 15px 0 15px 0;
+  margin: 15px 0 15px 30px;
 }
 #log {
-  margin: 0 15px 15px 15px;
+  margin: 0 15px 15px 60px;
   color: yellow;
   background-color: #333;
   font-size: 9px;
@@ -73,8 +76,6 @@ function add_graph() {
   added[added.length] = fname_key;
   add_graph_fname_key(fname_key);
 
-  $('#labels').html($('#labels').html() + '<li>' + fname_key + '</li>');
-
   var cvs = document.getElementById("c");
   cvs.style.backgroundColor = "white";
 }
@@ -85,11 +86,30 @@ function add_graph_fname_key(fname_key) {
   for (var path in path_stat) {
     if (path.match(fname + '$')) {
       (function(path) {
-        log('loading... ' + fname_key + ' from ' + path);
+        var suffix = fname_key + ' from ' + path;
+        log('loading... ' + suffix);
+
         $.getJSON(path, function(data) {
-          log('plotting... ' + fname_key + ' from ' + path);
-          add_graph_path_key(path, key, data);
-          log('done. ' + fname_key + ' from ' + path);
+          var key_stat = path_stat[path].keys[key];
+          if (!key_stat) {
+            log('error. ' + suffix);
+            return;
+          }
+
+          var color = get_color();
+          var orig = $('#labels').html();
+          $('#labels').html(orig +
+                            '<tr>' +
+                            '<td style="background-color:' + color + ';">&nbsp;&nbsp;&nbsp;</td>' +
+                            '<td>&nbsp;&nbsp;</td>' +
+                            '<td>' + fname + '&nbsp;&nbsp;</td>' +
+                            '<td>' + key + '&nbsp;&nbsp;</td>' +
+                            '<td>' + path + '&nbsp;&nbsp;</td>' +
+                            '</tr>');
+
+          log('plotting... ' + suffix);
+          add_graph_path_key(path, key, data, { "color": color });
+          log('done. ' + suffix);
         });
       })(path);
     }
@@ -109,11 +129,6 @@ function add_graph_path_key(path, key, data, opts) {
   ctx.strokeStyle = opts.color || get_color();
 
   var key_stat = path_stat[path].keys[key];
-  if (!key_stat) {
-    log('missing ' + path + ' for ' + key);
-    return;
-  }
-
   var min = opts.min || key_stat.min;
   var max = opts.max || key_stat.max;
   var delta = max - min;
