@@ -13,7 +13,7 @@
   </div>
 </div>
 
-<div id="msg"></div>
+<pre id="msg"></pre>
 
 <style>
 body {
@@ -40,6 +40,7 @@ body {
   top: 15px;
   right: 15px;
   color: yellow;
+  z-index: 1;
 }
 </style>
 
@@ -70,30 +71,51 @@ function add_graph_fname_key(fname_key) {
   var key   = fname_key.split(':')[1];
   for (var path in path_stat) {
     if (path.match(fname + '$')) {
-      msg('loading...');
-      $.getJSON(path, function(data) { add_graph_path_key(path, key, data); });
+      (function(path) {
+        msg('loading ' + fname_key + ' from ' + path + '...');
+        $.getJSON(path, function(data) { add_graph_path_key(path, key, data); });
+      })(path);
     }
   }
 }
 
 function add_graph_path_key(path, key, data) {
-  msg('');
+  msg('processing ' + path + ':' + key + '...');
 
   var cvs = document.getElementById("c");
   var ctx = cvs.getContext("2d");
 
-  var stat = path_stat[path];
+  var w = $('#c').width;
+  var h = $('#c').height;
 
   ctx.lineWidth = 1;
   ctx.strokeStyle = "#ff0000";
 
-  ctx.moveTo(20,40);
-  ctx.lineTo(20,41);
+  alert(JSON.stringify(path_stat[path].keys));
+  alert(key);
 
-  ctx.moveTo(40,40);
-  ctx.lineTo(40,41);
+  var key_stat = path_stat[path].keys[key];
+  if (!key_stat) {
+    msg('missing ' + path + ' for ' + key);
+    return;
+  }
 
-  ctx.stroke();
+  var min = key_stat.min;
+  var max = key_stat.max;
+  var delta = max - min;
+
+  msg("data.length=" + data.length);
+
+  for (var i in data) {
+    var row = data[i];
+    var val = row[key];
+    var y = h * (val - min) / delta;
+
+    ctx.moveTo(i,y);
+    ctx.lineTo(i,y + 1);
+
+    ctx.stroke();
+  }
 }
 
 function fill_select(path_stat) {
@@ -114,11 +136,11 @@ function fill_select(path_stat) {
   for (var i in opts) {
     opts[i] = '<option value="' + opts[i] + '">' + opts[i] + "</option>";
   }
-  $('#fname_key_select').html('<option value="">--select to graph--</option>' + opts.join(''));
+  $('#fname_key_select').html(opts.join(''));
 }
 
 function msg(m) {
-  $('#msg').text(m);
+  $('#msg').text($('#msg').text() + "\n" + m);
 }
 
 fill_select(path_stat);
