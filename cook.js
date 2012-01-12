@@ -2,14 +2,9 @@
 
 var fs = require("fs");
 
-var dirs = [];
-for (var i = 2; i < process.argv.length; i++) {
-  dirs[dirs.length] = process.argv[i];
-}
-
-for (var i in dirs) {
-  process_dir(dirs[i]);
-}
+process.argv.slice(2).forEach(function(dir) {
+    process_dir(dir);
+  });
 
 function process_dir(data_path) {
   var data_files = fs.readdirSync(data_path);
