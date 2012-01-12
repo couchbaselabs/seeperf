@@ -13,6 +13,8 @@
   </div>
 </div>
 
+<div id="msg"></div>
+
 <style>
 body {
   background-color: #333;
@@ -29,6 +31,12 @@ body {
 }
 #adder {
   margin: 15px 0 15px 0;
+}
+#msg {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  color: yellow;
 }
 </style>
 
@@ -57,15 +65,19 @@ function add_graph_fname_key(fname_key) {
   var key   = fname_key.split(':')[1];
   for (var path in path_stat) {
     if (path.match(fname + '$')) {
-      alert(path);
+      msg('loading...');
       $.getJSON(path, function(data) { add_graph_path_key(path, key, data); });
     }
   }
 }
 
 function add_graph_path_key(path, key, data) {
+  msg('');
+
   var cvs = document.getElementById("c");
   var ctx = cvs.getContext("2d");
+
+  var stat = path_stat[path];
 
   ctx.lineWidth = 1;
   ctx.strokeStyle = "#ff0000";
@@ -98,6 +110,10 @@ function fill_select(path_stat) {
     opts[i] = '<option value="' + opts[i] + '">' + opts[i] + "</option>";
   }
   $('#fname_key_select').html('<option value="">--select to graph--</option>' + opts.join(''));
+}
+
+function msg(m) {
+  $('#msg').text(m);
 }
 
 fill_select(path_stat);
