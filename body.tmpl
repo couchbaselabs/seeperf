@@ -46,7 +46,7 @@ body {
 </style>
 
 <script>
-var colors = [0xff0000, 0x00ff00, 0x0000ff, /* no yellow 0xffff00 */, 0x00ffff, 0xff00ff,
+var colors = [0xff0000, 0x00ff00, 0x0000ff, /* no yellow 0xffff00, */ 0x00ffff, 0xff00ff,
               0xaa6600, 0x6600aa, 0x00aa66, 0x6600aa, 0x0066aa];
 var colori = 0;
 function get_color() {
@@ -85,10 +85,11 @@ function add_graph_fname_key(fname_key) {
   for (var path in path_stat) {
     if (path.match(fname + '$')) {
       (function(path) {
-        log('loading ' + fname_key + ' from ' + path + '...');
+        log('loading... ' + fname_key + ' from ' + path);
         $.getJSON(path, function(data) {
+          log('plotting... ' + fname_key + ' from ' + path);
           add_graph_path_key(path, key, data);
-          log('done');
+          log('done. ' + fname_key + ' from ' + path);
         });
       })(path);
     }
@@ -98,15 +99,12 @@ function add_graph_fname_key(fname_key) {
 function add_graph_path_key(path, key, data, opts) {
   opts = opts || {};
 
-  log('plotting ' + path + ':' + key + '...');
-
   var cvs = document.getElementById("c");
   var ctx = cvs.getContext("2d");
 
   var w = $('#c').width();
   var h = $('#c').height();
 
-  ctx.beginPath();
   ctx.lineWidth = 1;
   ctx.strokeStyle = opts.color || get_color();
 
@@ -129,8 +127,10 @@ function add_graph_path_key(path, key, data, opts) {
       var row = data[i];
       var val = row[key];
       var y = h * (val - min) / delta;
+      ctx.beginPath();
       ctx.moveTo(x,h - y - 1);
       ctx.lineTo(x,h - y);
+      ctx.stroke();
 
       x = x + x_inc;
       if (x >= w) {
@@ -138,8 +138,10 @@ function add_graph_path_key(path, key, data, opts) {
       }
     }
   } else {
+    ctx.beginPath();
     ctx.moveTo(0, h - 1);
     ctx.lineTo(w, h - 1);
+    ctx.stroke();
   }
 
   ctx.stroke();
