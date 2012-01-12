@@ -7,10 +7,7 @@ var ignore = { 'buildinfo.clusterCompatibility': 1,
                'buildinfo.mcdMemoryAllocated': 1,
                'buildinfo.memoryFree': 1,
                'buildinfo.memoryTotal': 1,
-               'buildinfo.memoryQuota': 1,
-               'info.test_time': 1,
-               'row': 1,
-               'size': 1 }
+               'buildinfo.memoryQuota': 1 }
 
 var o = console.log
 
