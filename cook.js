@@ -5,9 +5,6 @@ var fs = require("fs");
 var o = console.log
 
 o("<html>");
-o("<body>")
-o(fs.readFileSync("./body.tmpl").toString());
-o("</body>")
 o("<script>")
 o("  var path_stat = {")
 
@@ -47,4 +44,5 @@ process.argv.slice(2).forEach(process_dir);
 
 o("  };")
 o("</script>")
+o(fs.readFileSync("./body.tmpl").toString());
 o("</html>")
