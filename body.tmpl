@@ -8,7 +8,7 @@
   <div id="labels">
   </div>
   <div id="adder">
-    <select id="key_select"></select>
+    <select id="fname_key_select"></select>
     <button id="add_graph" type="button" onclick="add_graph()">add graph</button>
   </div>
 </div>
@@ -36,19 +36,35 @@ body {
 var added = {};
 
 function add_graph() {
-  var key = $('#key_select option:selected').val();
-  if (!key || key == "") {
+  var fname_key = $('#fname_key_select option:selected').val();
+  if (!fname_key || fname_key == "") {
     alert("Please select a value to graph from the drop-down.");
     return;
   }
-  if (added[key]) {
-    alert("The value '" + key + "' is already graphed.");
+  if (added[fname_key]) {
+    alert("The value '" + fname_key + "' is already graphed.");
     return;
   }
-  added[key] = 1;
+  added[fname_key] = 1;
+  add_graph_fname_key(fname_key);
 
   var cvs = document.getElementById("c");
   cvs.style.backgroundColor = "white";
+}
+
+function add_graph_fname_key(fname_key) {
+  var fname = fname_key.split(':')[0];
+  var key   = fname_key.split(':')[1];
+  for (var path in path_stat) {
+    if (path.match(fname + '$')) {
+      alert(path);
+      $.getJSON(path, function(data) { add_graph_path_key(path, key, data); });
+    }
+  }
+}
+
+function add_graph_path_key(path, key, data) {
+  var cvs = document.getElementById("c");
   var ctx = cvs.getContext("2d");
 
   ctx.lineWidth = 1;
@@ -65,22 +81,23 @@ function add_graph() {
 
 function fill_select(path_stat) {
   var seen = {};
-  var keys = [];
+  var opts = [];
   for (var path in path_stat) {
     var stat = path_stat[path];
     for (var key in stat.keys) {
       var key_stat = stat.keys[key];
       if (key_stat.type == "number" && !seen[key]) {
         seen[key] = true;
-        keys.push(key);
+        var path_split = path.split('/');
+        opts.push(path_split[path_split.length - 1] + ":" + key);
       }
     }
   }
-  keys.sort();
-  for (var i in keys) {
-    keys[i] = '<option value="' + keys[i] + '">' + keys[i] + "</option>";
+  opts.sort();
+  for (var i in opts) {
+    opts[i] = '<option value="' + opts[i] + '">' + opts[i] + "</option>";
   }
-  $('#key_select').html('<option value="">--select to graph--</option>' + keys.join(''));
+  $('#fname_key_select').html('<option value="">--select to graph--</option>' + opts.join(''));
 }
 
 fill_select(path_stat);
