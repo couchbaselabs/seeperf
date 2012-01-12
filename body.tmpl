@@ -9,6 +9,7 @@
   </div>
   <div id="adder">
     <select id="key_select"></select>
+    <button id="add_graph" type="button" onclick="add_graph()">add graph</button>
   </div>
 </div>
 
@@ -31,28 +32,10 @@ body {
 </style>
 
 <script>
-function graph_all(path_stat) {
-  var seen = {};
-  var keys = [];
-  for (var path in path_stat) {
-    var stat = path_stat[path];
-    for (var key in stat.keys) {
-      var key_stat = stat.keys[key];
-      if (key_stat.type == "number" && !seen[key]) {
-        seen[key] = true;
-        keys.push(key);
-      }
-    }
-  }
-  keys.sort();
-  for (var i in keys) {
-    keys[i] = "<option>" + keys[i] + "</option>";
-  }
-  $('#key_select').html(keys.join(''));
-}
-
-function graph(key) {
+function add_graph() {
+  alert($('#key_select:selected').val());
   var cvs = document.getElementById("c");
+  cvs.style.backgroundColor = "white";
   var ctx = cvs.getContext("2d");
 
   ctx.lineWidth = 1;
@@ -67,7 +50,27 @@ function graph(key) {
   ctx.stroke();
 }
 
-graph_all(path_stat);
+function fill_select(path_stat) {
+  var seen = {};
+  var keys = [];
+  for (var path in path_stat) {
+    var stat = path_stat[path];
+    for (var key in stat.keys) {
+      var key_stat = stat.keys[key];
+      if (key_stat.type == "number" && !seen[key]) {
+        seen[key] = true;
+        keys.push(key);
+      }
+    }
+  }
+  keys.sort();
+  for (var i in keys) {
+    keys[i] = '<option value="' + keys[i] + '">' + keys[i] + "</option>";
+  }
+  $('#key_select').html("<option>--select to graph--</option>" + keys.join(''));
+}
+
+fill_select(path_stat);
 </script>
 </body>
 
