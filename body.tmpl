@@ -5,8 +5,8 @@
 <div id="stage">
   <h1>the audience is graphing</h1>
   <canvas id="c" width="800" height="400"></canvas>
-  <div id="labels">
-  </div>
+  <ul id="labels">
+  </ul>
   <div id="adder">
     <select id="fname_key_select"></select>
     <button id="add_graph" type="button" onclick="add_graph()">add graph</button>
@@ -28,6 +28,9 @@ body {
 }
 #stage canvas {
   border: 5px solid blue;
+}
+#labels {
+  color: #aaa;
 }
 #adder {
   margin: 15px 0 15px 0;
@@ -55,6 +58,8 @@ function add_graph() {
   }
   added[fname_key] = 1;
   add_graph_fname_key(fname_key);
+
+  $('#labels').html($('#labels').html() + '<li>' + fname_key + '</li>');
 
   var cvs = document.getElementById("c");
   cvs.style.backgroundColor = "white";
