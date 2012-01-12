@@ -25,6 +25,7 @@ body {
 #stage h1 {
   color: lightblue;
   font-weight: normal;
+  font-size: 15px;
 }
 #stage canvas {
   border: 5px solid blue;
@@ -36,6 +37,7 @@ body {
   margin: 15px 0 15px 0;
 }
 #log {
+  margin: 0 15px 15px 15px;
   color: yellow;
   background-color: #333;
   font-size: 9px;
@@ -44,6 +46,15 @@ body {
 </style>
 
 <script>
+var colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0x00ffff, 0xff00ff];
+var colori = 0;
+function get_color() {
+  var c = colors[colori];
+  colori = (colori + 1) % colors.length;
+  c = "000000" + c.toString(16);
+  return "#" + c.slice(c.length - 6);
+}
+
 var added = {};
 
 function add_graph() {
@@ -72,7 +83,10 @@ function add_graph_fname_key(fname_key) {
     if (path.match(fname + '$')) {
       (function(path) {
         log('loading ' + fname_key + ' from ' + path + '...');
-        $.getJSON(path, function(data) { add_graph_path_key(path, key, data); });
+        $.getJSON(path, function(data) {
+          add_graph_path_key(path, key, data);
+          log('done');
+        });
       })(path);
     }
   }
@@ -87,8 +101,9 @@ function add_graph_path_key(path, key, data) {
   var w = $('#c').width();
   var h = $('#c').height();
 
+  ctx.beginPath();
   ctx.lineWidth = 1;
-  ctx.strokeStyle = "#ff0000";
+  ctx.strokeStyle = log(get_color());
 
   var key_stat = path_stat[path].keys[key];
   if (!key_stat) {
@@ -117,17 +132,17 @@ function add_graph_path_key(path, key, data) {
       ctx.moveTo(x,h - y - 1);
       ctx.lineTo(x,h - y);
 
-      ctx.stroke();
       x = x + x_inc;
       if (x >= w) {
-        return;
+        break;
       }
     }
   } else {
     ctx.moveTo(0, h - 1);
     ctx.lineTo(w, h - 1);
-    ctx.stroke();
   }
+
+  ctx.stroke();
 }
 
 function fill_select(path_stat) {
@@ -152,7 +167,8 @@ function fill_select(path_stat) {
 }
 
 function log(m) {
-  $('#log').text($('#log').text() + "\n" + m);
+  $('#log').text(m + "\n" + $('#log').text());
+  return m;
 }
 
 fill_select(path_stat);
