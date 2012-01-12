@@ -6,6 +6,7 @@ var o = console.log
 
 o("<html>");
 o("<body>")
+o(fs.readFileSync("./body.tmpl").toString());
 o("</body>")
 o("<script>")
 o("  var path_stat = {")
