@@ -4,22 +4,29 @@
 
 <h1>hello world</h1>
 <canvas id="c" width="800" height="400"></canvas>
+<select id="key_select"></select>
 <script>
 function graph_all(path_stat) {
+  var seen = {};
+  var keys = [];
   for (var path in path_stat) {
     var stat = path_stat[path];
     for (var key in stat.keys) {
       var key_stat = stat.keys[key];
-      if (key_stat.type == "number") {
-        graph(path, key, stat);
+      if (key_stat.type == "number" && !seen[key]) {
+        seen[key] = true;
+        keys.push(key);
       }
     }
   }
+  keys.sort();
+  for (var i in keys) {
+    keys[i] = "<option>" + keys[i] + "</option>";
+  }
+  $('#key_select').html(keys.join(''));
 }
 
-function graph(path, key) {
-  console.log(path + ' ' + key);
-
+function graph(key) {
   var cvs = document.getElementById("c");
   var ctx = cvs.getContext("2d");
 
