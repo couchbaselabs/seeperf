@@ -13,7 +13,7 @@
   </div>
 </div>
 
-<pre id="msg"></pre>
+<pre id="log"></pre>
 
 <style>
 body {
@@ -35,11 +35,10 @@ body {
 #adder {
   margin: 15px 0 15px 0;
 }
-#msg {
-  position: absolute;
-  top: 15px;
-  right: 15px;
+#log {
   color: yellow;
+  background-color: #333;
+  font-size: 9px;
   z-index: 1;
 }
 </style>
@@ -72,7 +71,7 @@ function add_graph_fname_key(fname_key) {
   for (var path in path_stat) {
     if (path.match(fname + '$')) {
       (function(path) {
-        msg('loading ' + fname_key + ' from ' + path + '...');
+        log('loading ' + fname_key + ' from ' + path + '...');
         $.getJSON(path, function(data) { add_graph_path_key(path, key, data); });
       })(path);
     }
@@ -80,40 +79,53 @@ function add_graph_fname_key(fname_key) {
 }
 
 function add_graph_path_key(path, key, data) {
-  msg('processing ' + path + ':' + key + '...');
+  log('processing ' + path + ':' + key + '...');
 
   var cvs = document.getElementById("c");
   var ctx = cvs.getContext("2d");
 
-  var w = $('#c').width;
-  var h = $('#c').height;
+  var w = $('#c').width();
+  var h = $('#c').height();
 
   ctx.lineWidth = 1;
   ctx.strokeStyle = "#ff0000";
 
-  alert(JSON.stringify(path_stat[path].keys));
-  alert(key);
-
   var key_stat = path_stat[path].keys[key];
   if (!key_stat) {
-    msg('missing ' + path + ' for ' + key);
+    log('missing ' + path + ' for ' + key);
     return;
   }
 
   var min = key_stat.min;
   var max = key_stat.max;
   var delta = max - min;
+  if (delta > 0) {
+    var x_inc = w / data.length;
 
-  msg("data.length=" + data.length);
+    log(JSON.stringify([typeof(h), h, min, max, delta,  data.length]));
 
-  for (var i in data) {
-    var row = data[i];
-    var val = row[key];
-    var y = h * (val - min) / delta;
+    var x = 0;
+    for (var i = 0; i < data.length; i++) {
+      var row = data[i];
+      var val = row[key];
+      var y = h * (val - min) / delta;
 
-    ctx.moveTo(i,y);
-    ctx.lineTo(i,y + 1);
+      if (i < 2) {
+        log('plot ' + i + ', ' + y + ' ' + val + ' ' + JSON.stringify(row));
+      }
 
+      ctx.moveTo(x,h - y - 1);
+      ctx.lineTo(x,h - y);
+
+      ctx.stroke();
+      x = x + x_inc;
+      if (x >= w) {
+        return;
+      }
+    }
+  } else {
+    ctx.moveTo(0, h - 1);
+    ctx.lineTo(w, h - 1);
     ctx.stroke();
   }
 }
@@ -139,8 +151,8 @@ function fill_select(path_stat) {
   $('#fname_key_select').html(opts.join(''));
 }
 
-function msg(m) {
-  $('#msg').text($('#msg').text() + "\n" + m);
+function log(m) {
+  $('#log').text($('#log').text() + "\n" + m);
 }
 
 fill_select(path_stat);
