@@ -15,6 +15,10 @@ var ignore = { 'buildinfo.clusterCompatibility': 1,
 var o = console.log
 
 o("<html>");
+o("<head>");
+o('<link rel="stylesheet" href="css/style.css">');
+o("</head>");
+
 o("<script>")
 o("  var path_stat = {")
 
