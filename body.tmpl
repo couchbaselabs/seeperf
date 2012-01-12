@@ -92,8 +92,10 @@ function add_graph_fname_key(fname_key) {
   }
 }
 
-function add_graph_path_key(path, key, data) {
-  log('processing ' + path + ':' + key + '...');
+function add_graph_path_key(path, key, data, opts) {
+  opts = opts || {};
+
+  log('plotting ' + path + ':' + key + '...');
 
   var cvs = document.getElementById("c");
   var ctx = cvs.getContext("2d");
@@ -103,7 +105,7 @@ function add_graph_path_key(path, key, data) {
 
   ctx.beginPath();
   ctx.lineWidth = 1;
-  ctx.strokeStyle = log(get_color());
+  ctx.strokeStyle = opts.color || get_color();
 
   var key_stat = path_stat[path].keys[key];
   if (!key_stat) {
@@ -111,24 +113,19 @@ function add_graph_path_key(path, key, data) {
     return;
   }
 
-  var min = key_stat.min;
-  var max = key_stat.max;
+  var min = opts.min || key_stat.min;
+  var max = opts.max || key_stat.max;
   var delta = max - min;
   if (delta > 0) {
+    var x = 0;
     var x_inc = w / data.length;
 
-    log(JSON.stringify([typeof(h), h, min, max, delta,  data.length]));
-
-    var x = 0;
-    for (var i = 0; i < data.length; i++) {
+    var i_start = opts.i_start || 0;
+    var i_end   = opts.i_end   || (data.length - 1);
+    for (var i = i_start; i <= i_end; i++) {
       var row = data[i];
       var val = row[key];
       var y = h * (val - min) / delta;
-
-      if (i < 2) {
-        log('plot ' + i + ', ' + y + ' ' + val + ' ' + JSON.stringify(row));
-      }
-
       ctx.moveTo(x,h - y - 1);
       ctx.lineTo(x,h - y);
 
