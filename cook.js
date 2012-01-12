@@ -2,38 +2,39 @@
 
 var fs = require("fs");
 
-process.argv.slice(2).forEach(function(dir) {
-    process_dir(dir);
-  });
+var map_to_json = {}; // Key = path; val = json string.
+var map_to_info = {}; // Key = path; val = keys info.
 
-function process_dir(data_path) {
-  fs.readdirSync(data_path).forEach(function(data_file) {
-      console.log(data_file);
+function process_dir(dir) {
+  fs.readdirSync(dir).forEach(function(fname) {
+      var path = dir + "/" + fname;
+      console.log(path);
 
-      var data = fs.readFileSync(data_path + "/" + data_file);
-      var json = JSON.parse(data);
+      var json = map_to_json[path] = fs.readFileSync(path);
+      var info = map_to_info[path] = {};
+      var keys = map_to_info[path].keys = {};
 
-      var n = 0;
-      var keys = {};
-      for (var j in json) {
-        n = n + 1;
-        var entry = json[j];
-        for (var key in entry) {
-          var val = entry[key];
-          var info = keys[key] = keys[key] || {};
-          info.count = (info.count || 0) + 1;
-          info.type  = (info.type || typeof(val));
-          if (info.type == "number") {
-            info.min = Math.min(val, info.min || Math.pow(2, 52));
-            info.max = Math.max(val, info.max || 0);
+      var rows = JSON.parse(json);
+      for (var i in rows) {
+        var row = rows[i];
+        for (var key in row) {
+          var val = row[key];
+          var key_info = keys[key] = keys[key] || {};
+          key_info.count = (key_info.count || 0) + 1;
+          key_info.type  = (key_info.type || typeof(val));
+          if (key_info.type == "number") {
+            key_info.min = Math.min(val, key_info.min || Math.pow(2, 52));
+            key_info.max = Math.max(val, key_info.max || 0);
           }
         }
       }
+      info.count = rows.length;
 
-      console.log("  bytes   : " + data.length);
-      console.log("  entries : " + n);
-      console.log(keys);
+      console.log("  bytes   : " + json.length);
+      console.log(info);
     });
 }
+
+process.argv.slice(2).forEach(process_dir);
 
 console.log("DONE")
