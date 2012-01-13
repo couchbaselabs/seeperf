@@ -83,6 +83,18 @@ function add_graph() {
 function add_graph_fname_key(fname_key) {
   var fname = fname_key.split(':')[0];
   var key   = fname_key.split(':')[1];
+
+  var max_rows = 0;
+
+  for (var path in path_stat) {
+    if (path.match(fname + '$')) {
+      var key_stat = path_stat[path].keys[key];
+      if (key_stat) {
+        max_rows = Math.max(max_rows, key_stat.count);
+      }
+    }
+  }
+
   for (var path in path_stat) {
     if (path.match(fname + '$')) {
       (function(path) {
@@ -108,7 +120,7 @@ function add_graph_fname_key(fname_key) {
                             '</tr>');
 
           log('plotting... ' + suffix);
-          add_graph_path_key(path, key, data, { "color": color });
+          add_graph_path_key(path, key, data, { "color": color, "i_end": max_rows });
           log('done. ' + suffix);
         });
       })(path);
@@ -116,32 +128,42 @@ function add_graph_fname_key(fname_key) {
   }
 }
 
+var scale_nchars = 0;
+
 function add_graph_path_key(path, key, data, opts) {
   opts = opts || {};
 
   var cvs = document.getElementById("c");
   var ctx = cvs.getContext("2d");
+  var clr = opts.color || get_color();
 
   var w = $('#c').width();
   var h = $('#c').height();
 
   ctx.lineWidth = 1;
-  ctx.strokeStyle = opts.color || get_color();
+  ctx.strokeStyle = clr;
 
   var key_stat = path_stat[path].keys[key];
   var min = opts.min || key_stat.min;
   var max = opts.max || key_stat.max;
+
   var delta = max - min;
   if (delta > 0) {
-    var x = 0;
-    var x_inc = w / data.length;
-
     var i_start = opts.i_start || 0;
     var i_end   = opts.i_end   || (data.length - 1);
+
+    var x = 0;
+    var x_inc = w / (i_end - i_start);
+
     for (var i = i_start; i <= i_end; i++) {
       var row = data[i];
+      if (!row) {
+        break;
+      }
+
       var val = row[key];
       var y = h * (val - min) / delta;
+
       ctx.beginPath();
       ctx.moveTo(x,h - y - 1);
       ctx.lineTo(x,h - y);
@@ -152,6 +174,19 @@ function add_graph_path_key(path, key, data, opts) {
         break;
       }
     }
+
+    ctx.font = "12px Calibri";
+    ctx.fillStyle = clr;
+    ctx.textAlign = "left";
+
+    ctx.textBaseline = "top";
+    ctx.fillText(min, 15 + scale_nchars * 10, h - 15);
+    ctx.textBaseline = "bottom";
+    ctx.fillText(max, 15 + scale_nchars * 10, 15);
+
+    scale_nchars = scale_nchars + Math.max(min.toString().length,
+                                           max.toString().length);
+
   } else {
     ctx.beginPath();
     ctx.moveTo(0, h - 1);
