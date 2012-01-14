@@ -3,13 +3,15 @@
 <script>window.jQuery || document.write('<script src="js/libs/jquery-1.6.2.min.js"><\/script>')</script>
 
 <div id="stage">
-  <h1>the audience is graphing</h1>
+ <center>
+  <h1 id="hello">the audience is graphing</h1>
   <canvas id="c" width="800" height="400"></canvas>
   <div id="adder">
     <select id="fname_key_select"></select>
     <button id="add_graph" type="button" onclick="add_graph()">add graph</button>
   </div>
   <table id="labels"></table>
+ </center>
 </div>
 
 <pre id="log"></pre>
@@ -22,6 +24,8 @@ body {
   margin: 15px 15px 15px 15px;
 }
 #stage h1 {
+  position: relative;
+  top: 225px;
   color: lightblue;
   font-weight: normal;
   font-size: 15px;
@@ -78,6 +82,7 @@ function add_graph() {
 
   var cvs = document.getElementById("c");
   cvs.style.backgroundColor = "white";
+  $('#hello').hide();
 }
 
 function add_graph_fname_key(fname_key) {
