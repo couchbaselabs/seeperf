@@ -59,5 +59,5 @@ process.argv.slice(2).forEach(process_dir);
 
 o("  };")
 o("</script>")
-o(fs.readFileSync("./body.tmpl").toString());
+o(fs.readFileSync("./body.tmpl.html").toString());
 o("</html>")
