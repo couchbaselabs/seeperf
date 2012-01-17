@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+// usage - ./cook.js DATA_DIR [... DATA_DIR]
+//
 var fs = require("fs");
 
 var ignore = { 'buildinfo.clusterCompatibility': 1,

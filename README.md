@@ -8,7 +8,7 @@ Usage
 
 First, run the included mini-webserver...
 
-    $ ./web.js 
+    $ ./web.js
     web.js - serving http://localhost:8888
 
 Next, in a separate console, process the data.
