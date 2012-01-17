@@ -159,6 +159,13 @@ function add_graph_path_key(path, key, data, opts) {
     var i_start = opts.i_start || 0;
     var i_end   = opts.i_end   || (data.length - 1);
 
+    var ts_range = 0;
+    var ts_prev = null;
+    var ts_stat = path_stat[path].keys.timestamp;
+    if (ts_stat) {
+      ts_range = ts_stat.max - ts_stat.min;
+    }
+
     var x = 0;
     var x_inc = w / (i_end - i_start);
 
@@ -176,7 +183,16 @@ function add_graph_path_key(path, key, data, opts) {
       ctx.lineTo(x,h - y);
       ctx.stroke();
 
-      x = x + x_inc;
+      var ts = row.timestamp;
+      if (ts && ts_range > 0) {
+        if (ts_prev) {
+          x = x + (w * (ts - ts_prev) / ts_range);
+        }
+        ts_prev = ts;
+      } else {
+        x = x + x_inc;
+      }
+
       if (x >= w) {
         break;
       }
