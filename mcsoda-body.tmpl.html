@@ -1,0 +1,154 @@
+<body>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="js/libs/jquery-1.6.2.min.js"><\/script>')</script>
+
+<div id="stage">
+ <center>
+  <h1 id="hello">mcsoda key pattern</h1>
+  <canvas id="c" width="800" height="400"></canvas>
+ </center>
+</div>
+
+<center>
+<pre id="log"></pre>
+</center>
+
+<style>
+body {
+  background-color: #333;
+}
+#stage {
+  margin: 15px 15px 15px 15px;
+}
+#stage h1 {
+  position: relative;
+  top: 225px;
+  color: lightblue;
+  font-weight: normal;
+  font-size: 15px;
+}
+#stage canvas {
+  border: 5px solid blue;
+}
+#labels {
+  color: #999;
+  margin-left: 45px;
+}
+#labels td {
+  font-size: 12px;
+}
+#adder {
+  margin: 15px 0 15px 30px;
+}
+#log {
+  margin: 0 15px 15px 60px;
+  color: #555;
+  background-color: #333;
+  font-size: 9px;
+  z-index: 1;
+}
+</style>
+
+<script type="text/javascript">
+var colors = [0xff0000, 0x00ff00, 0x0000ff, /* no yellow 0xffff00, */ 0x00ffff, 0xff00ff,
+              0xaa6600, 0x6600aa, 0x00aa66, 0x6600aa, 0x0066aa];
+var colori = 0;
+function get_color() {
+  var c = colors[colori];
+  colori = (colori + 1) % colors.length;
+  return mk_color(c);
+}
+
+function mk_color(c) {
+  c = "000000" + c.toString(16);
+  return "#" + c.slice(c.length - 6);
+}
+
+var colormap = {
+  'get':    "#00ff00",
+  'set':    "#ff0000",
+  'delete': "#0000ff"
+}
+
+function add_graph(data, opts) {
+  opts = opts || {};
+
+  var cvs = document.getElementById("c");
+  var ctx = cvs.getContext("2d");
+  var clr = opts.color || get_color();
+
+  var w = $('#c').width();
+  var h = $('#c').height();
+
+  ctx.lineWidth = 1;
+  ctx.strokeStyle = clr;
+
+  var min = 0;
+  var max = 100000;
+
+  var delta = max - min;
+  if (delta > 0) {
+    var i_start = opts.i_start || 0;
+    var i_end   = opts.i_end   || (data.length - 1);
+
+    var x = 0;
+    var x_inc = w / (i_end - i_start);
+
+    for (var i = i_start; i <= i_end; i++) {
+      var row = data[i];
+      if (!row) {
+        break;
+      }
+
+      var cmd = row[0];
+      var val = row[1];
+      var y = h * (val - min) / delta;
+
+      ctx.beginPath();
+      ctx.fillStyle = colormap[cmd] || "#f0f0f0";
+      ctx.moveTo(x,h - y - 1);
+      ctx.lineTo(x,h - y);
+      ctx.stroke();
+
+      x = x + x_inc;
+
+      if (x >= w) {
+        break;
+      }
+    }
+
+    ctx.font = "12px Calibri";
+    ctx.fillStyle = clr;
+    ctx.textAlign = "left";
+
+    ctx.textBaseline = "top";
+    ctx.fillText(min, 15 + scale_nchars * 10, h - 15);
+    ctx.textBaseline = "bottom";
+    ctx.fillText(max, 15 + scale_nchars * 10, 15);
+
+    scale_nchars = scale_nchars + Math.max(min.toString().length,
+                                           max.toString().length);
+
+  } else {
+    ctx.beginPath();
+    ctx.moveTo(0, h - 1);
+    ctx.lineTo(w, h - 1);
+    ctx.stroke();
+  }
+
+  ctx.stroke();
+}
+
+add_graph(cmds);
+
+var cvs = document.getElementById("c");
+cvs.style.backgroundColor = "white";
+
+function log(m) {
+  $('#log').text(m + "\n" + $('#log').text());
+  return m;
+}
+
+</script>
+</body>
+

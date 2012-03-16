@@ -1,0 +1,5 @@
+./pytests/performance/mcsoda.py none:// ratio-sets=1.0 ratio-creates=1.0 exit-after-creates=1 max-items=100000 doc-gen=0 | grep -v : | cut -d ' ' -f 1 -f 2
+
+./pytests/performance/mcsoda.py none:// ratio-sets=0.8 ratio-misses=0.05 ratio-creates=0.1875 ratio-deletes=0.0769 ratio-hot=0.2 ratio-hot-gets=0.95 ratio-hot-sets=0.95 ratio-expirations=0.025 max-ops=200000 max-items=100000 cur-items=100000 hot-shift=200 max-ops-per-sec=10000 doc-gen=0 | grep -v : | cut -d ' ' -f 1 -f 2
+
+
